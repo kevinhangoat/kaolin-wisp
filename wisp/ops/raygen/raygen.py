@@ -37,7 +37,7 @@ def _to_ndc_coords(pixel_x, pixel_y, camera):
     return pixel_x, pixel_y
 
 
-def generate_pinhole_rays(camera: Camera, coords_grid: torch.Tensor):
+def generate_pinhole_rays(camera: Camera, coords_grid: torch.Tensor, transient_mask=None):
     """Default ray generation function for pinhole cameras.
 
     This function assumes that the principal point (the pinhole location) is specified by a 
@@ -69,11 +69,13 @@ def generate_pinhole_rays(camera: Camera, coords_grid: torch.Tensor):
 
     # pixel values are now in range [-1, 1], both tensors are of shape res_y x res_x
     pixel_x, pixel_y = _to_ndc_coords(pixel_x, pixel_y, camera)
-
+    # BDD100K transient mask
+    # TODO: may cause error for multiple GPU
+    transient_mask = torch.tensor(transient_mask).to(coords_grid[0].device)
     ray_dir = torch.stack((pixel_x * camera.tan_half_fov(CameraFOV.HORIZONTAL),
                            -pixel_y * camera.tan_half_fov(CameraFOV.VERTICAL),
                            -torch.ones_like(pixel_x)), dim=-1)
-
+    ray_dir = ray_dir*transient_mask
     ray_dir = ray_dir.reshape(-1, 3)    # Flatten grid rays to 1D array
     ray_orig = torch.zeros_like(ray_dir)
 

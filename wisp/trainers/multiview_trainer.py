@@ -51,6 +51,12 @@ class MultiviewTrainer(BaseTrainer):
         rays = data['rays'].to(self.device).squeeze(0)
         img_gts = data['imgs'].to(self.device).squeeze(0)
 
+        # BDD100K apply mask
+        valid_rays_index = torch.isnan(rays.dirs)[:,0]==False
+        rays.dirs = rays.dirs[valid_rays_index]
+        rays.origins = rays.origins[valid_rays_index]
+        img_gts = img_gts[valid_rays_index]
+        
         timer.check("map to device")
 
         self.optimizer.zero_grad(set_to_none=True)
@@ -139,7 +145,8 @@ class MultiviewTrainer(BaseTrainer):
                 if name is not None:
                     out_name += "-" + name
 
-                write_exr(os.path.join(self.valid_log_dir, out_name + ".exr"), exrdict)
+                # TODO do not output .exr for now BDD100K
+                # write_exr(os.path.join(self.valid_log_dir, out_name + ".exr"), exrdict)
                 write_png(os.path.join(self.valid_log_dir, out_name + ".png"), rb.cpu().image().byte().rgb.numpy())
 
         psnr_total /= len(imgs)
@@ -172,8 +179,13 @@ class MultiviewTrainer(BaseTrainer):
 
         metric_dicts = []
         lods = list(range(self.pipeline.nef.num_lods))[::-1]
-        for lod in lods:
-            metric_dicts.append(self.evaluate_metrics(epoch, data["rays"], imgs, lod, f"lod{lod}"))
-        df = pd.DataFrame(metric_dicts)
-        df['lod'] = lods
-        df.to_csv(os.path.join(self.valid_log_dir, "lod.csv"))
+        
+        # TODO Only validate lod 15 when testing bdd100k
+        
+        # for lod in lods:
+        #     metric_dicts.append(self.evaluate_metrics(epoch, data["rays"], imgs, lod, f"lod{lod}"))
+        # df = pd.DataFrame(metric_dicts)
+        # df['lod'] = lods
+        # df.to_csv(os.path.join(self.valid_log_dir, "lod.csv"))
+
+        self.evaluate_metrics(epoch, data["rays"], imgs, lods[0], f"lod_{lods[0]}")

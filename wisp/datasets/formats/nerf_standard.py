@@ -16,6 +16,7 @@ import json
 from tqdm import tqdm
 import skimage.metrics
 import logging as log
+log.basicConfig(level = log.INFO)
 import numpy as np
 import torch
 from torch.multiprocessing import Pool
@@ -23,7 +24,10 @@ from kaolin.render.camera import Camera, blender_coords
 from wisp.core import Rays
 from wisp.ops.raygen import generate_pinhole_rays, generate_ortho_rays, generate_centered_pixel_coords
 from wisp.ops.image import resize_mip
-
+from bdd100k.utils import create_pan_mask_dict, get_transient_mask
+import scalabel
+# import scalabel.label.transforms as sca
+# from scalabel.label.transforms import rle_to_mask
 """ A module for loading data files in the standard NeRF format, including extensions to the format
     supported by Instant Neural Graphics Primitives.
     See: https://github.com/NVlabs/instant-ngp
@@ -233,6 +237,10 @@ def load_nerf_standard_data(root, split='train', bg_color='white', num_workers=-
     # nerf-synthetic uses a default far value of 6.0
     default_far = 6.0
 
+    # Dictionary for Panoptic masking
+    pan_path = os.path.join(root, "pan_mask", "pan_seg.json")
+    pan_seg_dict = create_pan_mask_dict(pan_path)
+    
     rays = []
 
     cameras = dict()
@@ -255,8 +263,15 @@ def load_nerf_standard_data(root, split='train', bg_color='white', num_workers=-
         cameras[basenames[i]] = camera
         ray_grid = generate_centered_pixel_coords(camera.width, camera.height,
                                                   camera.width, camera.height, device='cuda')
+        # Add panoptic segmentation mask for transient objects
+        if split == "train":
+            transient_mask = get_transient_mask(pan_seg_dict, basenames[i]+".jpg", (imgs.shape[1], imgs.shape[2]))
+        else:
+            transient_mask = np.ones((imgs.shape[1], imgs.shape[2]))
+        # Reshape for ray
+        transient_mask = np.tile(np.expand_dims(transient_mask,axis=2), 3)
         rays.append \
-            (generate_pinhole_rays(camera.to(ray_grid[0].device), ray_grid).reshape(camera.height, camera.width, 3).to
+            (generate_pinhole_rays(camera.to(ray_grid[0].device), ray_grid, transient_mask).reshape(camera.height, camera.width, 3).to
                 ('cpu'))
 
     rays = Rays.stack(rays).to(dtype=torch.float)

@@ -39,8 +39,13 @@ def get_transient_mask(pan_seg_dict, image_name, shape):
     Create transient mask that contains transient objects(car, bike so on) and ego vehicle
     """
     mask = np.zeros(shape)
+    if not pan_seg_dict:
+        # If no panoptic masks are found, return matrix of ones
+        return 1- mask
     if len(pan_seg_dict[image_name]['ego vehicle']) != 0:
         mask += pan_seg_dict[image_name]['ego vehicle'][0]
+    if len(pan_seg_dict[image_name]['unlabeled']) != 0:
+        mask += pan_seg_dict[image_name]['unlabeled'][0]
     transient_instances = pan_seg_dict[image_name]['car'] + pan_seg_dict[image_name]['bus'] + pan_seg_dict[image_name]['truck'] + \
                           pan_seg_dict[image_name]['person'] + pan_seg_dict[image_name]['rider'] + pan_seg_dict[image_name]['bicycle']
     if len(transient_instances)!=0:    
