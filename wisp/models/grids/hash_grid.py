@@ -38,7 +38,7 @@ class HashGrid(BLASGrid):
         feature_std        : float = 0.0,
         feature_bias       : float = 0.0,
         codebook_bitwidth  : int   = 16,
-        blas_level         : int   = 7,
+        blas_level         : int   = 9,
         **kwargs
     ):
         """Initialize the hash grid class.

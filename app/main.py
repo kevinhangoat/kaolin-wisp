@@ -9,7 +9,7 @@
 
 if __name__ == "__main__":
     import app_utils
-
+    import pdb
     from wisp.trainers import *
     from wisp.config_parser import parse_options, argparse_to_str, get_modules_from_config, \
         get_optimizer_from_config
@@ -29,6 +29,8 @@ if __name__ == "__main__":
                                       args.grid_lr_weight, optim_params, args.log_dir, device,
                                       exp_name=args.exp_name, info=args_str, extra_args=vars(args),
                                       render_every=args.render_every, save_every=args.save_every)
+    pdb.set_trace()
+    # pipeline.nef.save_mesh()
     if args.valid_only:
         trainer.validate()
     else:

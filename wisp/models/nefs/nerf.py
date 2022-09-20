@@ -14,6 +14,7 @@ import logging as log
 import time
 import math
 import copy
+import pdb
 
 from wisp.ops.spc import sample_spc
 from wisp.utils import PsDebugger, PerfTimer
@@ -115,6 +116,60 @@ class NeuralRadianceField(BaseNeuralField):
                 self.grid.blas.init(octree)
             else:
                 raise NotImplementedError
+    
+    def save_mesh(self, path='mesh.stl'):
+        """Save the model to mesh.
+        """
+        if self.grid is not None:
+            
+            if self.grid_type == "HashGrid":
+                # TODO(ttakikawa): Expose these parameters. 
+                # This is still an experimental feature for the most part. It does work however.
+                density_decay = 0.6
+                min_density = ((0.01 * 512)/np.sqrt(3))
+
+                self.grid.occupancy = self.grid.occupancy.cuda()
+                self.grid.occupancy = self.grid.occupancy * density_decay
+                points = self.grid.dense_points.cuda()
+                #idx = torch.randperm(points.shape[0]) # [:N] to subsample
+                res = 2.0**self.grid.blas_level
+                samples = torch.rand(points.shape[0], 3, device=points.device)
+                samples = points.float() + samples
+                samples = samples / res
+                samples = samples * 2.0 - 1.0
+                sample_views = torch.FloatTensor(sample_unif_sphere(samples.shape[0])).to(points.device)
+                with torch.no_grad():
+                    density = self.forward(coords=samples[:,None], ray_d=sample_views, channels="density")
+                self.grid.occupancy = torch.stack([density[:, 0, 0], self.grid.occupancy], -1).max(dim=-1)[0]
+
+                # mask = self.grid.occupancy > min_density
+                mask = self.grid.occupancy > 50
+                
+                #print(density.mean())
+                #print(density.max())
+                #print(mask.sum())
+                #print(self.grid.occupancy.max())
+
+                _points = points[mask]
+                _occupancy = self.grid.occupancy[mask]
+                
+                voxelgrids = torch.zeros([1, 128, 128, 128], device='cuda:0')
+                for index, _point in enumerate(_points):
+                    voxelgrids[0][_point[0]][_point[1]][_point[2]] = _occupancy[index]
+                pdb.set_trace()
+                mean = torch.mean(torch.mean(voxelgrids))
+                # voxelgrids/=(3*mean)
+                import trimesh
+                from kaolin.ops.conversions import voxelgrids_to_trianglemeshes 
+                
+                vertices, faces = voxelgrids_to_trianglemeshes(voxelgrids)
+                mesh = trimesh.Trimesh(vertices[0].cpu(), faces[0].cpu(), process=False)
+                mesh.export(path)
+                octree = spc_ops.unbatched_points_to_octree(_points, self.grid.blas_level, sorted=True)
+                self.grid.blas.init(octree)
+            else:
+                raise NotImplementedError
+            pdb.set_trace()
 
     def get_nef_type(self):
         """Returns a text keyword of the neural field type.

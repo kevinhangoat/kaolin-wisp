@@ -187,5 +187,8 @@ class MultiviewTrainer(BaseTrainer):
         # df = pd.DataFrame(metric_dicts)
         # df['lod'] = lods
         # df.to_csv(os.path.join(self.valid_log_dir, "lod.csv"))
-
+        # import pdb
+        # pdb.set_trace()
         self.evaluate_metrics(epoch, data["rays"], imgs, lods[0], f"lod_{lods[0]}")
+
+
