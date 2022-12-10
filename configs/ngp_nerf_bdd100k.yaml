@@ -54,7 +54,7 @@ grid:
     multiscale_type: 'cat'
     feature_dim: 2
     feature_std: 0.01
-    num_lods: 18
+    num_lods: 16
     tree_type: 'geometric'
     max_grid_res: 2048
     codebook_bitwidth: 19

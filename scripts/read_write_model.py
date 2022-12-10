@@ -736,8 +736,7 @@ def analyze_discontinuty(target_folder, ext):
 def binary_to_txt(path):
     cameras, images, points3D = read_model(path, ".bin")
     write_model(cameras, images, points3D, path, ".txt")
-   
+
 if __name__ == "__main__":
-    # main()
-    binary_to_txt("/srv/beegfs02/scratch/bdd100k/data/sfm/postcode/11201/daytime/singles/1f49cce2-affba551/dense/0_dense/sparse")
+    binary_to_txt("/srv/beegfs02/scratch/bdd100k/data/sfm/nerfstudio/data/2b7d9ca3-e7c0e128/sparse")
     

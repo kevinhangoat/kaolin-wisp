@@ -143,7 +143,7 @@ class NeuralRadianceField(BaseNeuralField):
                 self.grid.occupancy = torch.stack([density[:, 0, 0], self.grid.occupancy], -1).max(dim=-1)[0]
 
                 # mask = self.grid.occupancy > min_density
-                mask = self.grid.occupancy > 50
+                mask = self.grid.occupancy > 60
                 
                 #print(density.mean())
                 #print(density.max())
@@ -156,7 +156,7 @@ class NeuralRadianceField(BaseNeuralField):
                 voxelgrids = torch.zeros([1, 128, 128, 128], device='cuda:0')
                 for index, _point in enumerate(_points):
                     voxelgrids[0][_point[0]][_point[1]][_point[2]] = _occupancy[index]
-                pdb.set_trace()
+                # pdb.set_trace()
                 mean = torch.mean(torch.mean(voxelgrids))
                 # voxelgrids/=(3*mean)
                 import trimesh
@@ -169,7 +169,7 @@ class NeuralRadianceField(BaseNeuralField):
                 self.grid.blas.init(octree)
             else:
                 raise NotImplementedError
-            pdb.set_trace()
+            # pdb.set_trace()
 
     def get_nef_type(self):
         """Returns a text keyword of the neural field type.

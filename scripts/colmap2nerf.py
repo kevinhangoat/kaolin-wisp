@@ -270,7 +270,8 @@ if __name__ == "__main__":
                 R = qvec2rotmat(-qvec)
                 R = np.matmul(R,roty(10))
                 t = tvec.reshape([3, 1])
-                t[1] -= 10
+                # t[1] -= 10
+                # t[2] -= 3
                 # import pdb
                 # pdb.set_trace()
                 m = np.concatenate([np.concatenate([R, t], 1), bottom], 0)
@@ -307,7 +308,7 @@ if __name__ == "__main__":
     tmp_list = []
     for f in frames:
         # pdb.set_trace()
-        print(f["transform_matrix"][0:3,3])
+        # print(f["transform_matrix"][0:3,3])
         tmp_list.append(np.array(f["transform_matrix"][0:3,3]))
     for f in frames:
         mf = f["transform_matrix"][0:3,:]
@@ -319,12 +320,12 @@ if __name__ == "__main__":
                 totw += weight
     totp /= totw
     tmp_list.append(totp)
-    import pickle
-    path = '/scratch_net/biwidl208/yuthan/wisp_data/nerf/d389c316-c71f7a5e/poses.pkl'
-    with open(path, "wb") as fid:
-        pickle.dump(tmp_list, fid)
-    for f in frames:
-        f["transform_matrix"][0:3,3] -= totp
+    # import pickle
+    # path = '/scratch_net/biwidl208/yuthan/wisp_data/nerf/d389c316-c71f7a5e/poses.pkl'
+    # with open(path, "wb") as fid:
+    #     pickle.dump(tmp_list, fid)
+    # for f in frames:
+    #     f["transform_matrix"][0:3,3] -= totp
     avglen = 0.
     for f in frames:
         avglen += np.linalg.norm(f["transform_matrix"][0:3,3])
@@ -345,7 +346,7 @@ if __name__ == "__main__":
         f["transform_matrix"] = f["transform_matrix"].tolist()
 
     # construct frames
-    pdb.set_trace()
+    # pdb.set_trace()
     def write_json(filename, frames):
 
         out = {

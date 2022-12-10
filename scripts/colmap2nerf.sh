@@ -15,3 +15,21 @@ python scripts/colmap2nerf.py \
     --aabb_scale 16 \
     --colmap_text /scratch_net/biwidl208/yuthan/wisp_data/nerf/d389c316-c71f7a5e/sparse/orientation_aligned \
     --out /scratch_net/biwidl208/yuthan/wisp_data/nerf/d389c316-c71f7a5e/transforms_rot
+
+python scripts/colmap2nerf.py \
+    --images /scratch_net/biwidl208/yuthan/wisp_data/nerf/10002_6/images \
+    --aabb_scale 16 \
+    --colmap_text /scratch_net/biwidl208/yuthan/wisp_data/nerf/10002_6/sparse \
+    --out /scratch_net/biwidl208/yuthan/wisp_data/nerf/10002_6
+
+python scripts/colmap2nerf.py \
+    --images /scratch_net/biwidl208/yuthan/wisp_data/nerf/10001_52_val/images \
+    --aabb_scale 8 \
+    --colmap_text /scratch_net/biwidl208/yuthan/wisp_data/nerf/10001_52_val/sparse \
+    --out /scratch_net/biwidl208/yuthan/wisp_data/nerf/10001_52_val/transforms
+
+python scripts/colmap2nerf.py \
+    --images /srv/beegfs02/scratch/bdd100k/data/sfm/nerfstudio/data/11201_77/images \
+    --aabb_scale 16 \
+    --colmap_text /srv/beegfs02/scratch/bdd100k/data/sfm/nerfstudio/data/11201_77/sparse \
+    --out /srv/beegfs02/scratch/bdd100k/data/sfm/nerfstudio/data/11201_77

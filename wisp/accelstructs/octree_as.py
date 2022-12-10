@@ -12,7 +12,7 @@ from wisp.utils import PsDebugger, PerfTimer
 import wisp.ops.spc as wisp_spc_ops
 import kaolin.ops.spc as spc_ops
 import kaolin.render.spc as spc_render
-
+import pdb
 
 class OctreeAS(object):
     """Octree bottom-level acceleration structure class implemented using Kaolin SPC.
@@ -227,6 +227,7 @@ class OctreeAS(object):
             deltas = deltas[mask].reshape(-1, 1)
 
             samples = samples[mask][:,None]
+            # pdb.set_trace()
         else:
             assert False and "raymarch type wrong"
 
